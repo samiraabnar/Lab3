@@ -23,7 +23,6 @@ Experiments / Conditions:
 import sys
 
 import time
-import matplotlib.pyplot as plt
 import re
 import RnR as RnR
 import math
@@ -66,67 +65,7 @@ class experiment:
         # Load human data of real experiment
         self.expResults = frr.experimentResults(expId)
 
-    '''
-        Plot performance line of model simulation.
-        modelData: {exp:{x:(mean_y, std_y)}} (registered in summary)
-    '''
 
-    def plotPerformance(self, modelData, params, outputFile, metric_value, metric):
-        plt.figure()
-        ax = plt.subplot(111)
-        # Plot human data
-        human_data = [(int(k), v * 100) for (k, v) in self.expResults.avg_performance.items()]
-        ind, data = zip(*sorted(human_data))
-        print "human data", human_data
-        p1 = plt.plot(ind, data, marker=None, linestyle='-', color='black', linewidth=3.5)
-        plt.xlim(plt.xlim()[0] - 1, plt.xlim()[1] + 2)
-        plt.ylim(50, 100)
-        plt.ylabel("Performance", fontsize=22)
-        print ind, data
-        # Plot model data
-        plt.title("Experiment {0}".format(self.expId))
-        if not modelData is None:
-            ind, data = zip(*sorted(modelData.items()))
-            print "model data", modelData, ind, data
-            p2 = plt.plot(ind, data, marker=None, linestyle='--', color='black', linewidth=3.5)
-            # plt.title("RnR performance in experiment {0} \n {2}: {1:.2f}".format(self.expId, metric_value, metric))
-
-            # Add person R in the middle (copying Frank et al.)
-            plt.text(plt.xlim()[1] / 2.0, 55, 'r={0:.2f}'.format(metric_value), fontsize=22)
-
-        # Legend
-        # Shrink current axis's height by 10% on the bottom
-        box = ax.get_position()
-        ax.set_position([box.x0, box.y0 + box.height * 0.1,
-                         box.width, box.height * 0.9])
-
-        # Put a legend below current axis
-        ax.legend(("humans", params), loc='upper center', bbox_to_anchor=(0.5, -0.05),
-                  fancybox=True, shadow=True, ncol=5)
-
-        # Output to file
-        if ".eps" != outputFile[-4:]:
-            outputFile += ".eps"
-        plt.savefig(outputFile)
-
-    '''
-      Quick scatterplot to visualize linear relationship.
-    '''
-
-    def scatterPlot(self, modelData, outputFile="scatterplot.png", title=""):
-        _, model_data = zip(*sorted(modelData.items()))
-        _, human_data = zip(*sorted(self.expResults.avg_performance.items()))
-        human_data = map(lambda x: x * 100, human_data)
-        plt.figure()
-        plt.title(title)
-        plt.xlabel = "Humans"
-        plt.ylabel = "Model"
-        plt.scatter(human_data, model_data, s=100)
-
-        # Output to file
-        if ".png" != outputFile[-4:]:
-            outputFile += ".png"
-        plt.savefig(outputFile)
 
     ''' PearsonR between human data and some model simulation'''
 
@@ -139,7 +78,6 @@ class experiment:
             pearsonr = 0.0
         return pearsonr
 
-    ''' MSE between human data and some model simulation'''
 
 
 ''' Each experiment_condition complete.
@@ -362,5 +300,3 @@ if __name__ == "__main__":
         performance_exp[cnd] = percentage_correct
 
     personR = exp.pearsonR(performance_exp)
-
-    exp.plotPerformance(performance_exp, "", "frank.rnr.test.png", personR, "pearson's R")
